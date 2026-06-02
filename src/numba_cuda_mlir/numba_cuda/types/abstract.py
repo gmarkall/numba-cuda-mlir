@@ -267,15 +267,14 @@ class Number(Hashable):
         """
         Unify the two number types using Numpy's rules.
         """
-        from numba_cuda_mlir.numba_cuda.np import numpy_support
+        USE_CUTILE = True
 
-        if isinstance(other, Number):
-            # XXX: this can produce unsafe conversions,
-            # e.g. would unify {int64, uint64} to float64
-            a = numpy_support.as_dtype(self)
-            b = numpy_support.as_dtype(other)
-            sel = np.promote_types(a, b)
-            return numpy_support.from_dtype(sel)
+        if USE_CUTILE:
+            from numba_cuda_mlir.numba_cuda.types.cutile_types import PROMOTE_TYPES
+        else:
+            from numba_cuda_mlir.numba_cuda.types.promote_types import PROMOTE_TYPES
+
+        return PROMOTE_TYPES.get((self, other), None)
 
 
 class Callable(Type):
